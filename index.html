@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI - Eksplorasi Teks Deskripsi</title>
+    <style>
+        :root {
+            /* Tema Warna: Hijau (Agraris/Alam) dan Kuning (Ceria/Pesisir) */
+            --hijau-tua: #1E5631;
+            --hijau-segar: #4C9A2A;
+            --hijau-muda: #E8F5E9;
+            --kuning-emas: #FFC107;
+            --kuning-muda: #FFFDE7;
+            --teks-gelap: #2C3E50;
+            --putih: #FFFFFF;
+            --abu-abu: #E0E0E0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Font bawaan sistem untuk offline */
+        }
+
+        body {
+            background-color: var(--hijau-muda);
+            color: var(--teks-gelap);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--hijau-tua) 0%, var(--hijau-segar) 100%);
+            color: var(--putih);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-bottom: 5px solid var(--kuning-emas);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        header p {
+            font-size: 1rem;
+            color: var(--kuning-muda);
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px;
+            background-color: var(--putih);
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .btn-nav {
+            background-color: var(--kuning-emas);
+            color: var(--hijau-tua);
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-nav:hover, .btn-nav.active {
+            background-color: var(--hijau-segar);
+            color: var(--putih);
+            transform: translateY(-2px);
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .module-section {
+            display: none; /* Disembunyikan secara default, diatur via JS */
+            background-color: var(--putih);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease;
+            border-top: 5px solid var(--hijau-segar);
+        }
+
+        .module-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: var(--hijau-tua);
+            margin-bottom: 15px;
+            border-bottom: 2px dashed var(--kuning-emas);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .interactive-box {
+            background-color: var(--kuning-muda);
+            border: 2px solid var(--kuning-emas);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .text-passage {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            border-left: 5px solid var(--hijau-segar);
+            margin-bottom: 20px;
+        }
+
+        .highlight-visual { background-color: transparent; transition: 0.4s; border-radius: 4px; }
+        .highlight-audio { background-color: transparent; transition: 0.4s; border-radius: 4px; }
+        .highlight-raba { background-color: transparent; transition: 0.4s; border-radius: 4px; }
+        
+        .active-visual { background-color: #bbdefb; color: #000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 0 4px;}
+        .active-audio { background-color: #c8e6c9; color: #000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 0 4px;}
+        .active-raba { background-color: #ffe082; color: #000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 0 4px;}
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .btn-control {
+            border: 2px solid var(--hijau-segar);
+            background: var(--putih);
+            color: var(--hijau-tua);
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-control:hover { background: var(--hijau-muda); }
+        .btn-control.selected { background: var(--hijau-segar); color: var(--putih); }
+
+        .feedback-box {
+            min-height: 80px;
+            background-color: var(--hijau-muda);
+            border-left: 5px solid var(--hijau-tua);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            margin-top: 15px;
+            display: none; /* Tampil saat tombol ditekan */
+        }
+
+        .quiz-container {
+            margin-top: 20px;
+        }
+        .question-card {
+            background: var(--kuning-muda);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--kuning-emas);
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .option-btn {
+            background: var(--putih);
+            border: 2px solid var(--abu-abu);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        .option-btn:hover { border-color: var(--hijau-segar); background-color: var(--hijau-muda); }
+        .option-btn.selected { border-color: var(--hijau-tua); background-color: var(--hijau-tua); color: var(--putih); }
+        .option-btn.correct { background-color: var(--hijau-segar); color: white; border-color: var(--hijau-tua); }
+        .option-btn.wrong { background-color: #e57373; color: white; border-color: #d32f2f; }
+
+        .btn-submit {
+            background: var(--hijau-tua);
+            color: var(--putih);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .btn-submit:hover { background: var(--hijau-segar); }
+
+        .result-box {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: var(--kuning-muda);
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px dashed var(--kuning-emas);
+        }
+        .score-display { font-size: 3rem; font-weight: bold; color: var(--hijau-tua); }
+        
+        .explanation-box {
+            margin-top: 15px;
+            text-align: left;
+            background: var(--putih);
+            padding: 15px;
+            border-left: 4px solid var(--kuning-emas);
+            font-size: 0.95rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid var(--abu-abu);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        .input-field:focus {
+            border-color: var(--hijau-segar);
+            outline: none;
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--hijau-segar);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        footer {
+            background-color: var(--hijau-tua);
+            color: var(--kuning-muda);
+            text-align: center;
+            padding: 15px;
+            margin-top: auto;
+            font-size: 0.9rem;
+        }
+
+        .info-card {
+            background: var(--hijau-muda);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        .info-icon {
+            font-size: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            nav { flex-direction: column; padding: 10px; }
+            .btn-nav { width: 100%; text-align: center; }
+            .controls { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Eksplorasi Teks Deskripsi 🏝️</h1>
+        <p>Bahasa Indonesia - Kelas VII (Fase D) | MTs Provinsi Gorontalo</p>
+    </header>
+
+    <nav>
+        <button class="btn-nav active" onclick="openModule('beranda', this)">🏠 Beranda</button>
+        <button class="btn-nav" onclick="openModule('materi', this)">📚 Ringkasan Materi</button>
+        <button class="btn-nav" onclick="openModule('eksplorasi', this)">🔍 Detektif Teks</button>
+        <button class="btn-nav" onclick="openModule('evaluasi', this)">📝 Kuis Evaluasi</button>
+    </nav>
+
+    <main>
+        <section id="beranda" class="module-section active">
+            <h2>Selamat Datang, Penjelajah! 👋</h2>
+            <div class="info-card">
+                <div class="info-icon">🌴</div>
+                <div>
+                    <p>Gorontalo punya banyak keindahan alam, mulai dari desiran ombak di <strong>Pantai Bolihutuo</strong> hingga hamparan luas <strong>Danau Limboto</strong>. Pernahkah kamu menceritakan keindahan itu kepada orang yang belum pernah ke sana?</p>
+                </div>
+            </div>
+            <p>Untuk membuat orang lain seolah-olah ikut melihat, mendengar, dan merasakan apa yang kita alami, kita membutuhkan <strong>Teks Deskripsi</strong>.</p>
+            <br>
+            <p><strong>Apa yang akan kita pelajari hari ini?</strong></p>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li>Menganalisis gagasan dan rincian objek dari teks deskripsi lisan/visual.</li>
+                <li>Menemukan ciri-ciri pengindraan (penglihatan, pendengaran, perabaan) dalam teks.</li>
+            </ul>
+            <br>
+            <button class="btn-nav" style="width: 100%;" onclick="document.querySelectorAll('.btn-nav')[1].click()">Mulai Belajar ➡️</button>
+        </section>
+
+        <section id="materi" class="module-section">
+            <h2>📚 Ringkasan Materi Teks Deskripsi</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: var(--hijau-segar);">1. Apa itu Teks Deskripsi?</h3>
+                <p>Teks deskripsi adalah teks yang berisi gambaran suatu objek, tempat, atau peristiwa secara rinci. Tujuannya agar pembaca/pendengar <strong>seolah-olah melihat, mendengar, atau merasakan sendiri</strong> apa yang dideskripsikan.</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: var(--hijau-segar);">2. Melibatkan Pancaindra</h3>
+                <p>Saat mendengarkan penuturan pemandu wisata lisan atau membaca teks, perhatikan kata-kata kuncinya:</p>
+                <ul style="margin-left: 20px; margin-top: 10px; display: grid; gap: 10px;">
+                    <li style="background: #bbdefb; padding: 10px; border-radius: 5px;">👁️ <strong>Penglihatan:</strong> Berhubungan dengan warna, bentuk, ukuran (Contoh: laut biru, pohon tinggi, jagung kuning).</li>
+                    <li style="background: #c8e6c9; padding: 10px; border-radius: 5px;">👂 <strong>Pendengaran:</strong> Berhubungan dengan suara (Contoh: kicau burung maleo, deburan ombak, suara bising).</li>
+                    <li style="background: #ffe082; padding: 10px; border-radius: 5px;">🖐️ <strong>Perabaan/Perasaan:</strong> Berhubungan dengan suhu atau tekstur kulit (Contoh: angin sejuk, udara panas, pasir kasar).</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 style="color: var(--hijau-segar);">3. Struktur Teks Deskripsi</h3>
+                <p><strong>a. Identifikasi:</strong> Pengenalan nama objek, makna nama, lokasi, dan gambaran umum. (Misal: <em>"Pantai Bolihutuo adalah objek wisata di Kabupaten Boalemo."</em>)</p>
+                <p><strong>b. Deskripsi Bagian:</strong> Rincian bagian objek berdasarkan apa yang dilihat, didengar, atau dirasakan. (Misal: <em>"Pasir putihnya membentang luas, anginnya terasa sangat sejuk."</em>)</p>
+            </div>
+        </section>
+
+        <section id="eksplorasi" class="module-section">
+            <h2>🔍 Detektif Teks (Eksplorasi Interaktif)</h2>
+            <p style="margin-bottom: 15px;">Bayangkan kamu sedang mendengarkan seorang pemandu wisata menceritakan keindahan Gorontalo. Jadilah detektif! <strong>Klik tombol di bawah ini</strong> untuk menemukan bukti pancaindra dalam transkrip cerita.</p>
+            
+            <div class="interactive-box">
+                <div class="controls">
+                    <button class="btn-control" onclick="highlightSense('visual', this)">👁️ Indra Penglihatan</button>
+                    <button class="btn-control" onclick="highlightSense('audio', this)">👂 Indra Pendengaran</button>
+                    <button class="btn-control" onclick="highlightSense('raba', this)">🖐️ Indra Peraba (Fisik)</button>
+                    <button class="btn-control" onclick="highlightSense('reset', this)" style="background: #e0e0e0;">🔄 Reset</button>
+                </div>
+
+                <div class="text-passage" id="teks-bacaan">
+                    <strong>Pemandu Wisata:</strong> "Selamat pagi, teman-teman! Saat ini kita berada di Pantai Bolihutuo. 
+                    <span class="highlight-visual">Sejauh mata memandang, hamparan pasir putih bersih melengkung indah mengikuti garis pantai.</span> 
+                    <span class="highlight-visual">Di kejauhan, air laut memantulkan gradasi warna biru muda hingga biru tua.</span> 
+                    Tutup mata kalian sejenak. 
+                    <span class="highlight-audio">Dengarkanlah desiran ombak yang memecah karang dengan irama yang merdu secara bergantian.</span> 
+                    <span class="highlight-audio">Sesekali terdengar pekikan burung camar memanggil kawanannya.</span> 
+                    Sambil berjalan menyusuri pantai, 
+                    <span class="highlight-raba">angin sepoi-sepoi yang sejuk perlahan membelai wajah kita, mengusir rasa gerah.</span> 
+                    <span class="highlight-raba">Pasir halus di bawah kaki terasa hangat saat dipijak tanpa alas kaki.</span> 
+                    Sungguh suasana yang menenangkan."
+                </div>
+
+                <div class="feedback-box" id="feedback-eksplorasi">
+                    <!-- Pesan pedagogis akan muncul di sini via JS -->
+                </div>
+            </div>
+        </section>
+
+        <section id="evaluasi" class="module-section">
+            <h2>📝 Kuis Evaluasi Formatif</h2>
+            <p>Mari uji pemahamanmu. Pilih jawaban yang paling tepat!</p>
+            
+            <div id="student-info-form" class="question-card" style="margin-top: 20px;">
+                <h3 style="color: var(--hijau-tua); margin-bottom: 10px;">Data Diri Siswa</h3>
+                <p style="margin-bottom: 15px; font-size: 0.9rem;">Silakan isi nama dan kelas sebelum mengerjakan kuis. Nilai kamu akan otomatis tersimpan ke server guru.</p>
+                <input type="text" id="siswa-nama" class="input-field" placeholder="Nama Lengkap (Contoh: Budi Santoso)" required>
+                <input type="text" id="siswa-kelas" class="input-field" placeholder="Kelas (Contoh: VII A)" required>
+                <button class="btn-submit" onclick="startQuiz()" style="margin-top: 0;">Mulai Kuis</button>
+            </div>
+            
+            <div id="quiz-wrapper" style="display: none;">
+                <div id="quiz-area" class="quiz-container">
+                    <!-- Konten kuis akan dirender oleh JavaScript di sini -->
+                </div>
+
+                <div class="loader" id="submit-loader"></div>
+                <button class="btn-submit" id="submit-quiz-btn" onclick="calculateScore()">Kumpulkan & Simpan Hasil</button>
+            </div>
+
+            <div id="quiz-result" class="result-box">
+                <h3>Skor Kamu:</h3>
+                <div class="score-display" id="final-score">0</div>
+                <p id="score-message"></p>
+                <div id="quiz-explanations" style="margin-top: 20px;">
+                    <!-- Pembahasan akan muncul di sini -->
+                </div>
+                <button class="btn-nav" style="margin-top: 15px;" onclick="resetQuiz()">Coba Lagi</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2026 - MPI Bahasa Indonesia Kelas VII (Fase D) | Kanwil Kemenag Provinsi Gorontalo
+    </footer>
+
+    <script>
+        function openModule(moduleId, btnElement) {
+            // Sembunyikan semua modul
+            const modules = document.querySelectorAll('.module-section');
+            modules.forEach(mod => mod.classList.remove('active'));
+
+            // Hapus kelas active dari semua tombol
+            const buttons = document.querySelectorAll('.btn-nav');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Tampilkan modul yang dipilih dan aktifkan tombol
+            document.getElementById(moduleId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        function highlightSense(sense, btnElement) {
+            // Reset semua highlight dan tombol terlebih dahulu
+            const visuals = document.querySelectorAll('.highlight-visual');
+            const audios = document.querySelectorAll('.highlight-audio');
+            const rabas = document.querySelectorAll('.highlight-raba');
+            const buttons = document.querySelectorAll('.btn-control');
+            const feedback = document.getElementById('feedback-eksplorasi');
+
+            visuals.forEach(el => el.classList.remove('active-visual'));
+            audios.forEach(el => el.classList.remove('active-audio'));
+            rabas.forEach(el => el.classList.remove('active-raba'));
+            buttons.forEach(el => el.classList.remove('selected'));
+
+            if (sense === 'reset') {
+                feedback.style.display = 'none';
+                return;
+            }
+
+            // Aktifkan tombol yang diklik
+            btnElement.classList.add('selected');
+            feedback.style.display = 'block';
+
+            // Berikan highlight dan umpan balik pedagogis (Real-time feedback)
+            if (sense === 'visual') {
+                visuals.forEach(el => el.classList.add('active-visual'));
+                feedback.innerHTML = "<strong>💡 Pesan Guru:</strong> Bagus! Kalimat yang disorot biru menunjukkan apa yang bisa kita <strong>lihat dengan mata</strong>. Kata kunci seperti <em>'pasir putih bersih'</em> dan <em>'gradasi warna biru'</em> melukiskan bentuk dan warna yang ditangkap oleh mata (Visual).";
+                feedback.style.borderLeftColor = "#1976d2";
+            } else if (sense === 'audio') {
+                audios.forEach(el => el.classList.add('active-audio'));
+                feedback.innerHTML = "<strong>💡 Pesan Guru:</strong> Tepat sekali! Kalimat yang disorot hijau mendeskripsikan suara. Kata kunci <em>'desiran ombak'</em>, <em>'irama merdu'</em>, dan <em>'pekikan burung'</em> membuat pendengar seolah-olah <strong>mendengar langsung</strong> suasananya (Audio).";
+                feedback.style.borderLeftColor = "#388e3c";
+            } else if (sense === 'raba') {
+                rabas.forEach(el => el.classList.add('active-raba'));
+                feedback.innerHTML = "<strong>💡 Pesan Guru:</strong> Luar biasa! Kalimat yang disorot kuning berkaitan dengan <strong>sensasi pada kulit kita</strong>. Kata <em>'angin sejuk membelai'</em> dan <em>'pasir terasa hangat'</em> melibatkan indra peraba/perasa fisik.";
+                feedback.style.borderLeftColor = "#fbc02d";
+            }
+        }
+
+        // ==========================================
+        // KONFIGURASI GOOGLE APPS SCRIPT (BACKEND)
+        // ==========================================
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxgoiIwVwkWL-LTj0Jdacjw2IxbyFbyCovGJOou-74yPGU4gJ8zm9dr_EIhScPtDWsZqg/exec"; 
+
+        let namaSiswa = "";
+        let kelasSiswa = "";
+        // ==========================================
+
+        const quizData = [
+            {
+                question: "1. <em>'Menjelang sore, hamparan sawah di kaki bukit wilayah Bone Bolango tampak menguning seperti permadani emas.'</em><br>Kalimat tersebut menggunakan cerapan indra...",
+                options: ["Pendengaran", "Penglihatan", "Pengecap", "Peraba"],
+                correct: 1,
+                explanation: "Kata 'tampak menguning seperti permadani emas' menjelaskan warna yang hanya bisa ditangkap oleh <strong>mata (Penglihatan)</strong>."
+            },
+            {
+                question: "2. <em>'Di sekitar Danau Limboto, terdengar suara kepakan sayap burung bangau yang sedang mencari makan, bersahut-sahutan dengan semilir angin.'</em><br>Rincian objek yang dideskripsikan melibatkan indra...",
+                options: ["Penglihatan", "Peraba", "Pendengaran", "Penciuman"],
+                correct: 2,
+                explanation: "Terdapat kata 'terdengar suara kepakan' dan 'bersahut-sahutan', yang menunjukkan aktivitas yang ditangkap oleh <strong>telinga (Pendengaran)</strong>."
+            },
+            {
+                question: "3. Dalam struktur teks deskripsi, bagian yang menyebutkan nama objek yang dideskripsikan, lokasi, dan pernyataan umum disebut...",
+                options: ["Deskripsi Bagian", "Simpulan/Kesan", "Resolusi", "Identifikasi"],
+                correct: 3,
+                explanation: "<strong>Identifikasi</strong> adalah bagian awal yang mengenalkan identitas objek (nama, lokasi, gambaran umum) sebelum dirinci secara khusus di bagian deskripsi bagian."
+            },
+            {
+                question: "4. <em>'Udara di Pulo Cinta terasa sangat terik saat siang hari, menembus pori-pori kulit. Namun, air lautnya terasa menyegarkan saat disentuh.'</em><br>Kalimat ini dominan menggunakan indra...",
+                options: ["Peraba", "Pendengaran", "Penglihatan", "Pengecap"],
+                correct: 0,
+                explanation: "Kata 'terasa sangat terik', 'pori-pori kulit', dan 'menyegarkan saat disentuh' berkaitan dengan suhu dan sentuhan fisik, yaitu indra <strong>Peraba</strong>."
+            },
+            {
+                question: "5. Apa tujuan utama penulis/pembicara ketika menyampaikan teks deskripsi wisata Benteng Otanaha?",
+                options: [
+                    "Mengajak wisatawan untuk menjaga kebersihan benteng.",
+                    "Menceritakan sejarah masa lalu raja-raja Gorontalo.",
+                    "Menggambarkan suasana dan bentuk benteng seolah pendengar melihatnya langsung.",
+                    "Menjelaskan langkah-langkah menuju lokasi benteng."
+                ],
+                correct: 2,
+                explanation: "Tujuan utama Teks Deskripsi adalah <strong>menggambarkan suatu objek/suasana secara rinci</strong> sehingga pembaca atau pendengar merasa seolah-olah mengalaminya secara langsung."
+            }
+        ];
+
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        function startQuiz() {
+            const namaInput = document.getElementById('siswa-nama').value.trim();
+            const kelasInput = document.getElementById('siswa-kelas').value.trim();
+
+            if (namaInput === "" || kelasInput === "") {
+                alert("Mohon isi Nama dan Kelas terlebih dahulu!");
+                return;
+            }
+
+            namaSiswa = namaInput;
+            kelasSiswa = kelasInput;
+
+            document.getElementById('student-info-form').style.display = 'none';
+            document.getElementById('quiz-wrapper').style.display = 'block';
+            
+            // Scroll ke atas area kuis
+            window.scrollTo({ top: document.getElementById('evaluasi').offsetTop - 20, behavior: 'smooth' });
+        }
+
+        function renderQuiz() {
+            const quizArea = document.getElementById('quiz-area');
+            quizArea.innerHTML = '';
+            
+            quizData.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                
+                const questionText = document.createElement('h3');
+                questionText.style.marginBottom = "10px";
+                questionText.style.fontSize = "1.1rem";
+                questionText.style.color = "var(--hijau-tua)";
+                questionText.innerHTML = q.question;
+                card.appendChild(questionText);
+
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+
+                q.options.forEach((opt, optIndex) => {
+                    const btn = document.createElement('button');
+                    btn.className = `option-btn q${index}`;
+                    btn.innerHTML = `${String.fromCharCode(65 + optIndex)}. ${opt}`;
+                    btn.onclick = () => selectOption(index, optIndex, btn);
+                    optionsDiv.appendChild(btn);
+                });
+
+                card.appendChild(optionsDiv);
+                quizArea.appendChild(card);
+            });
+        }
+
+        function selectOption(qIndex, optIndex, btnElement) {
+            // Cegah pemilihan ulang jika sudah disubmit atau kuis sedang diproses/loading
+            if (document.getElementById('quiz-result').style.display === 'block' || document.getElementById('submit-quiz-btn').disabled) return;
+
+            userAnswers[qIndex] = optIndex;
+            
+            // Hapus status selected dari opsi lain di pertanyaan yang sama
+            const allOptions = document.querySelectorAll(`.q${qIndex}`);
+            allOptions.forEach(btn => btn.classList.remove('selected'));
+            
+            // Tambahkan status selected ke tombol yang diklik
+            btnElement.classList.add('selected');
+        }
+
+        async function calculateScore() {
+            // Validasi apakah semua soal sudah dijawab
+            if (userAnswers.includes(null)) {
+                alert("Mohon jawab seluruh 5 pertanyaan sebelum mengumpulkan!");
+                return;
+            }
+
+            const btnSubmit = document.getElementById('submit-quiz-btn');
+            const loader = document.getElementById('submit-loader');
+            
+            // Tampilkan animasi Loading Data
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = "Menyimpan Data ke Server...";
+            loader.style.display = "block";
+
+            let score = 0;
+            let benar = 0;
+            let salah = 0;
+            let jawabanTeksSiswa = [];
+            
+            const explanationBox = document.getElementById('quiz-explanations');
+            explanationBox.innerHTML = '<h3 style="margin-bottom:10px;">Pembahasan:</h3>';
+
+            quizData.forEach((q, index) => {
+                const isCorrect = (userAnswers[index] === q.correct);
+                if (isCorrect) {
+                    score += 20; // 5 soal x 20 = 100
+                    benar++;
+                } else {
+                    salah++;
+                }
+                
+                // Simpan huruf jawaban siswa (A/B/C/D)
+                const abjad = String.fromCharCode(65 + userAnswers[index]);
+                jawabanTeksSiswa.push(abjad);
+
+                // Tandai warna jawaban benar dan salah
+                const allOptions = document.querySelectorAll(`.q${index}`);
+                allOptions.forEach((btn, optIndex) => {
+                    if (optIndex === q.correct) {
+                        btn.classList.add('correct');
+                    } else if (optIndex === userAnswers[index] && !isCorrect) {
+                        btn.classList.add('wrong');
+                    }
+                });
+
+                // Buat kotak pembahasan pedagogis
+                const explDiv = document.createElement('div');
+                explDiv.className = 'explanation-box';
+                explDiv.innerHTML = `
+                    <strong>Soal ${index + 1}:</strong> 
+                    <span style="color: ${isCorrect ? 'green' : 'red'}; font-weight:bold;">
+                        ${isCorrect ? '✅ Benar' : '❌ Kurang Tepat'}
+                    </span><br>
+                    <p style="margin-top:5px; font-size:0.9rem;">${q.explanation}</p>
+                `;
+                explanationBox.appendChild(explDiv);
+            });
+
+            // Persiapkan data untuk dilempar ke Backend Google Sheets
+            const payload = {
+                action: 'saveResult',
+                nama: namaSiswa,
+                kelas: kelasSiswa,
+                benar: benar,
+                salah: salah,
+                jawabanSiswa: jawabanTeksSiswa
+            };
+
+            // Kirim via fetch API ke server Google Apps Script
+            if (GAS_WEB_APP_URL !== "MASUKKAN_URL_WEB_APP_GAS_ANDA_DISINI") {
+                try {
+                    const response = await fetch(GAS_WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+                    console.log("Response Server:", result);
+                } catch (error) {
+                    console.error("Error saat menyimpan:", error);
+                    alert("Informasi: Terjadi gangguan jaringan saat menyimpan ke server. Namun, hasil kuis tetap bisa kamu lihat.");
+                }
+            } else {
+                console.warn("URL Google Apps Script belum disetting di kode HTML. Data tidak dikirim.");
+            }
+
+            // Normalkan kembali UI Tombol & Loading
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = "Kumpulkan & Simpan Hasil";
+            loader.style.display = "none";
+
+            // Tampilkan hasil
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('submit-quiz-btn').style.display = 'none';
+            document.getElementById('quiz-result').style.display = 'block';
+
+            // Pesan motivasi
+            const msgEl = document.getElementById('score-message');
+            if (score === 100) {
+                msgEl.innerText = "Luar biasa! Kamu adalah Detektif Teks yang hebat! 🌟";
+            } else if (score >= 60) {
+                msgEl.innerText = "Kerja bagus! Pelajari lagi pembahasannya ya agar lebih sempurna. 👍";
+            } else {
+                msgEl.innerText = "Jangan menyerah! Ayo baca kembali ringkasan materinya dan coba lagi. 💪";
+            }
+        }
+
+        function resetQuiz() {
+            userAnswers = new Array(quizData.length).fill(null);
+            document.getElementById('quiz-result').style.display = 'none';
+            
+            // Kembalikan antarmuka ke Form Input Identitas
+            document.getElementById('student-info-form').style.display = 'block';
+            document.getElementById('quiz-wrapper').style.display = 'none';
+            document.getElementById('submit-quiz-btn').style.display = 'block';
+            
+            // Kosongkan nama & kelas (agar siap digunakan siswa lain jika estafet)
+            document.getElementById('siswa-nama').value = '';
+            document.getElementById('siswa-kelas').value = '';
+            namaSiswa = "";
+            kelasSiswa = "";
+            
+            renderQuiz(); // Render ulang agar bersih
+            
+            // Scroll sedikit ke atas
+            window.scrollTo({ top: document.getElementById('evaluasi').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
